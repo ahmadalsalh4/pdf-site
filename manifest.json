@@ -12,5 +12,12 @@
     "path": "pdfs/Example-Category/DNA_RNA_Replikasyon_Notlari.pdf",
     "date": 1793651727792.4844,
     "size": 866877
+  },
+  {
+    "category": "Example-Category",
+    "name": "Kelam_Ilmi_Sinav_Ozeti.pdf",
+    "path": "pdfs/Example-Category/Kelam_Ilmi_Sinav_Ozeti.pdf",
+    "date": 1793657966568.97,
+    "size": 73134
   }
 ]
