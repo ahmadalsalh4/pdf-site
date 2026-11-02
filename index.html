@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PDF Library</title>
+    <style>
+      :root {
+        --bg: #f6f5f2;
+        --card: #fff;
+        --text: #1d1d1b;
+        --muted: #6b6a66;
+        --accent: #c2410c;
+        --line: #e4e2dc;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161615;
+          --card: #212120;
+          --text: #efeee9;
+          --muted: #9a9890;
+          --accent: #fb923c;
+          --line: #333330;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      header {
+        padding: 28px 20px 12px;
+        max-width: 1100px;
+        margin: auto;
+      }
+      h1 {
+        margin: 0 0 16px;
+        font-size: 1.6rem;
+      }
+      .bar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .cats {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        flex: 1;
+      }
+      .cat {
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--text);
+        padding: 7px 14px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+      .cat.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      select,
+      input {
+        padding: 8px 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--card);
+        color: var(--text);
+        font-size: 0.9rem;
+      }
+      main {
+        max-width: 1100px;
+        margin: auto;
+        padding: 12px 20px 60px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 18px;
+      }
+      a.card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      a.card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      }
+      .thumb {
+        aspect-ratio: 16/9;
+        background: #e9e7e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .thumb canvas {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top;
+      }
+      .thumb span {
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+      .info {
+        padding: 10px 12px;
+      }
+      .name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        word-break: break-word;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .meta {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .empty {
+        grid-column: 1/-1;
+        text-align: center;
+        color: var(--muted);
+        padding: 60px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>📚 PDF Library</h1>
+      <div class="bar">
+        <div class="cats" id="cats"></div>
+        <input id="q" type="search" placeholder="Search…" />
+        <select id="sort">
+          <option value="new">Newest first</option>
+          <option value="old">Oldest first</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </div>
+    </header>
+    <main id="grid"></main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+      let files = [],
+        category = "All";
+      const $ = (id) => document.getElementById(id);
+      const enc = (p) => p.split("/").map(encodeURIComponent).join("/");
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              observer.unobserve(e.target);
+              renderThumb(e.target);
+            }
+          });
+        },
+        { rootMargin: "200px" },
+      );
+
+      async function renderThumb(box) {
+        try {
+          const pdf = await pdfjsLib.getDocument(box.dataset.src).promise;
+          const page = await pdf.getPage(1);
+          const vp0 = page.getViewport({ scale: 1 });
+          const vp = page.getViewport({ scale: 400 / vp0.width });
+          const canvas = document.createElement("canvas");
+          canvas.width = vp.width;
+          canvas.height = vp.height;
+          await page.render({
+            canvasContext: canvas.getContext("2d"),
+            viewport: vp,
+          }).promise;
+          box.innerHTML = "";
+          box.appendChild(canvas);
+        } catch (err) {
+          box.innerHTML = "<span>Preview unavailable</span>";
+        }
+      }
+
+      function render() {
+        const q = $("q").value.toLowerCase(),
+          s = $("sort").value;
+        let list = files.filter(
+          (f) =>
+            (category === "All" || f.category === category) &&
+            f.name.toLowerCase().includes(q),
+        );
+        list.sort((a, b) =>
+          s === "name"
+            ? a.name.localeCompare(b.name)
+            : s === "old"
+              ? a.date - b.date
+              : b.date - a.date,
+        );
+        $("grid").innerHTML = "";
+        if (!list.length) {
+          $("grid").innerHTML = '<div class="empty">No PDFs found.</div>';
+          return;
+        }
+        list.forEach((f) => {
+          const a = document.createElement("a");
+          a.className = "card";
+          a.href = enc(f.path);
+          a.target = "_blank";
+          a.rel = "noopener";
+          a.innerHTML = `<div class="thumb" data-src="${enc(f.path)}"><span>Loading…</span></div>
+      <div class="info"><div class="name"></div><div class="meta"></div></div>`;
+          a.querySelector(".name").textContent = f.name.replace(/\.pdf$/i, "");
+          a.querySelector(".meta").textContent =
+            f.category + " · " + new Date(f.date).toLocaleDateString();
+          $("grid").appendChild(a);
+          observer.observe(a.querySelector(".thumb"));
+        });
+      }
+
+      function renderCats() {
+        const cats = ["All", ...new Set(files.map((f) => f.category))].sort(
+          (a, b) => (a === "All" ? -1 : b === "All" ? 1 : a.localeCompare(b)),
+        );
+        $("cats").innerHTML = "";
+        cats.forEach((c) => {
+          const b = document.createElement("button");
+          b.className = "cat" + (c === category ? " active" : "");
+          b.textContent = c;
+          b.onclick = () => {
+            category = c;
+            renderCats();
+            render();
+          };
+          $("cats").appendChild(b);
+        });
+      }
+
+      $("q").oninput = render;
+      $("sort").onchange = render;
+
+      fetch("manifest.json")
+        .then((r) => r.json())
+        .then((data) => {
+          files = data;
+          renderCats();
+          render();
+        })
+        .catch(() => {
+          $("grid").innerHTML =
+            '<div class="empty">manifest.json not found. Run: node build.js</div>';
+        });
+    </script>
+  </body>
+</html>
