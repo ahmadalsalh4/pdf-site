@@ -29,10 +29,45 @@
   },
   {
     "category": "Example-Category",
+    "name": "Edebiyat_Comic.pdf",
+    "path": "pdfs/Example-Category/Edebiyat_Comic.pdf",
+    "date": 1794353027433.147,
+    "size": 1126122
+  },
+  {
+    "category": "Example-Category",
+    "name": "Edebiyat_Defter.pdf",
+    "path": "pdfs/Example-Category/Edebiyat_Defter.pdf",
+    "date": 1794353026438.3816,
+    "size": 1785619
+  },
+  {
+    "category": "Example-Category",
+    "name": "Edebiyat_Dergisi.pdf",
+    "path": "pdfs/Example-Category/Edebiyat_Dergisi.pdf",
+    "date": 1794353021727.9824,
+    "size": 1100306
+  },
+  {
+    "category": "Example-Category",
+    "name": "Edebiyat_RPG_Oyun.pdf",
+    "path": "pdfs/Example-Category/Edebiyat_RPG_Oyun.pdf",
+    "date": 1794353024295.9097,
+    "size": 4806646
+  },
+  {
+    "category": "Example-Category",
     "name": "Fizik_Calisma_Kagidi.pdf",
     "path": "pdfs/Example-Category/Fizik_Calisma_Kagidi.pdf",
     "date": 1793941140252.142,
     "size": 1777587
+  },
+  {
+    "category": "Example-Category",
+    "name": "index.pdf",
+    "path": "pdfs/Example-Category/index.pdf",
+    "date": 1794353024354.562,
+    "size": 664238
   },
   {
     "category": "Example-Category",
@@ -61,5 +96,12 @@
     "path": "pdfs/Example-Category/Tarih_sınav_özeti.pdf",
     "date": 1793739752524.8877,
     "size": 801441
+  },
+  {
+    "category": "Example-Category",
+    "name": "WhatsApp Image 2026-11-11 at 12.14.29 AM.pdf",
+    "path": "pdfs/Example-Category/WhatsApp Image 2026-11-11 at 12.14.29 AM.pdf",
+    "date": 1794348504210.398,
+    "size": 197076
   }
 ]
